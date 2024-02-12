@@ -10,7 +10,7 @@
 
 //only include the necessary header file
 //----
-#include "MaxHeap.h";
+#include "MaxHeap.h"
 
 using namespace std;
 
@@ -28,7 +28,8 @@ int main()
 
 	//declare any other variables in case you need them
 	//----
-
+    int carInd;
+    Car maxCar;
     Car oneCar;
 
 	// instantiate an empty Heap
@@ -49,8 +50,7 @@ int main()
 				cin >> capacity;
 				cin.ignore(20, '\n');	//flush the buffer
 
-				//Add your own code
-				//----
+                heap1 = new MaxHeap(capacity);
 
 				break;
 
@@ -69,8 +69,11 @@ int main()
                     cout << "\nEmpty heap, can NOT extract max" << endl;
                 else
                 {
-                    //Add your own code
-                    //----
+                    cout << "Before extract heap max operation:\n";
+                    heap1->printHeap();
+                    cout << "After extract heap max operation:\n";
+                    heap1->extractHeapMax();
+                    heap1->printHeap();
                 }
 				break;
 
@@ -79,8 +82,8 @@ int main()
 				cin >> vin;
 				cin.ignore(20, '\n');	//flush the buffer
 
-				//Add your own code
-				//----
+				carInd = heap1->isFound(vin);
+                cout << "\nCar with VIN: " << vin << " is " << ((carInd < 0) ? "NOT " : "") << "found\n";
 
 				break;
 
@@ -97,8 +100,12 @@ int main()
 				cin >> price;
 				cin.ignore(20, '\n');	//flush the buffer
 
-				//Add your own code
-				//----
+				if(heap1->heapInsert(vin,model,make,price)) {
+                    cout << "\nCar \"" << model << " " << make << "\" is added\n";
+                } else {
+                    cout << "\nDuplicated Car. Not added\n";
+                    cout << "\nCar \"" << model << " " << make << "\" is NOT added\n";
+                }
 
 				break;
 
@@ -109,29 +116,35 @@ int main()
 				cin >> newVIN;
 				cin.ignore(20, '\n');	//flush the buffer
 
-				//Add your own code
-				//----
+
+				//heap1->heapIncreaseVIN(heap1->isFound(), )
 
 				break;
 
 			case 'M':	//get maximum node
-
-			    //Add your own code
-				//----
+                if(heap1->getSize() == 0) {
+                    cout << "Empty heap, can NOT get max node";
+                    break;
+                }
+                maxCar = heap1->getCarArr()[0];
+                cout << "\nThe maximum heap node is:\n";
+                cout << left;
+                cout << setw(8) << maxCar.vin
+                     << setw(12) << maxCar.model
+                     << setw(12) << maxCar.make
+                     << setw(8) << fixed << setprecision(2) << maxCar.price << endl;
 
 				break;
 
 			case 'P':	//Print heap contents
 
-			    //Add your own code
-				//----
+			    heap1->printHeap();
 
 				break;
 
 			case 'S':	//HeapSort
 				cout << "\nHeap sort. Cars will be sorted in increasing order of their VINs" << endl;
-				//Add your own code
-				//----
+                heapSort(heap1);
 
 				break;
 
@@ -156,8 +169,21 @@ int main()
 //sorting result inside another array and print it out
 void heapSort(MaxHeap* oneMaxHeap)
 {
-    //Add your own code
-	//----
+    int size = oneMaxHeap->getSize();
+    Car* carArr = oneMaxHeap->getCarArr();
+    for(int i = size - 1; i > 1; i--) {
+        Car temp = carArr[i];
+        carArr[i] = carArr[0];
+        carArr[0] = temp;
+        oneMaxHeap->heapify(0);
+    }
+    for(int i = 0; i < size; i++) {
+        cout << left;
+        cout << setw(8) << carArr[i].vin
+             << setw(12) << carArr[i].model
+             << setw(12) << carArr[i].make
+             << setw(8) << fixed << setprecision(2) << carArr[i].price << endl;
+    }
 }
 
 //**The function displays the menu to a user**
