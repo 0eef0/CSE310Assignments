@@ -32,8 +32,10 @@ public:
 
     Car* getCarArr();
     int getSize();
+    void setSize(int newSize);
     int getCapacity();
     int isFound(int aVin);
+    bool isDupe(int vin);
     bool heapIncreaseVIN(int index, Car oneCarWithNewVIN);
     bool heapInsert(int vin, string model, string make, double price);
     void heapify(int index);
@@ -74,6 +76,9 @@ Car* MaxHeap::getCarArr() {
 int MaxHeap::getSize() {
     return size;
 }
+void MaxHeap::setSize(int newSize) {
+    size = newSize;
+}
 
 int MaxHeap::getCapacity() {
     return capacity;
@@ -90,18 +95,40 @@ int MaxHeap::isFound(int aVin) {
     return ind;
 }
 
+bool MaxHeap::isDupe(int vin) {
+    bool duplicate = false;
+    for(int i = 0; i < size; i++) {
+        if(vin == carArr[i].vin) {
+            duplicate = true;
+        }
+    }
+    return duplicate;
+}
+
 bool MaxHeap::heapIncreaseVIN(int index, Car oneCarWithNewVIN) {
     int i = oneCarWithNewVIN.vin;
+
+    bool duplicate = false;
+    for(int i = 0; i < size; i++) {
+        if(i == carArr[i].vin) {
+            duplicate = true;
+        }
+    }
+    if(duplicate) {
+        return false;
+    }
+
     if(carArr[index].vin > i) {
         return false;
     } else {
         carArr[index].vin = i;
-        while(index >= 0 && carArr[parent(index)].vin < carArr[index].vin) {
+        while(index > 0 && carArr[parent(index)].vin < carArr[index].vin) {
             Car temp = carArr[parent(index)];
             carArr[parent(index)] = carArr[index];
             carArr[index] = temp;
             index = parent(index);
         }
+        return true;
     }
 }
 
@@ -144,13 +171,11 @@ bool MaxHeap::heapInsert(int vin, std::string model, std::string make, double pr
 void MaxHeap::heapify(int index) {
     int left = leftChild(index);
     int right = rightChild(index);
-    int largest;
-    if(index <= size && carArr[left].vin > carArr[index].vin) {
+    int largest = index;
+    if(left < size && carArr[left].vin > carArr[largest].vin) {
         largest = left;
-    } else {
-        largest = index;
     }
-    if(index <= size && carArr[right].vin > carArr[index].vin) {
+    if(right < size && carArr[right].vin > carArr[largest].vin) {
         largest = right;
     }
     if(largest != index) {
@@ -163,27 +188,32 @@ void MaxHeap::heapify(int index) {
 }
 
 void MaxHeap::extractHeapMax() {
-    Car max = carArr[0];
+    if(size <= 0) {
+        throw out_of_range("Heap is empty");
+    }
+
+    Car temp = carArr[0];
     carArr[0] = carArr[size - 1];
+    carArr[size - 1] = temp;
     size--;
     heapify(0);
 }
 
 int MaxHeap::leftChild(int parentIndex) {
-    return parentIndex * 2;
-}
-
-int MaxHeap::rightChild(int parentIndex) {
     return parentIndex * 2 + 1;
 }
 
+int MaxHeap::rightChild(int parentIndex) {
+    return parentIndex * 2 + 2;
+}
+
 int MaxHeap::parent(int childIndex) {
-    return childIndex / 2;
+    return (childIndex - 1) / 2;
 }
 
 void MaxHeap::printHeap() {
     if(size == 0) {
-        cout << "Empty heap, no elements";
+        cout << "\nEmpty heap, no elements\n";
         return;
     }
     cout << "\nHeap capacity = " << capacity << "\n";

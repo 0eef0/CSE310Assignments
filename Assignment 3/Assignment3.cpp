@@ -55,13 +55,9 @@ int main()
 				break;
 
 			case 'D':	//delete the heap, call the destructor explicitly
-				cout << "\nDelete the heap" << endl;
-				//Add your own code
-				//----
-
-				//re-initialize it with capacity 5
-				//Add your own code
-				//----
+				cout << "\nDelete the heap\n" << endl;
+				delete heap1;
+                heap1 = new MaxHeap(5);
 				break;
 
 			case 'E':	//Extract the maximum node
@@ -69,9 +65,9 @@ int main()
                     cout << "\nEmpty heap, can NOT extract max" << endl;
                 else
                 {
-                    cout << "Before extract heap max operation:\n";
+                    cout << "\nBefore extract heap max operation:\n";
                     heap1->printHeap();
-                    cout << "After extract heap max operation:\n";
+                    cout << "\nAfter extract heap max operation:\n";
                     heap1->extractHeapMax();
                     heap1->printHeap();
                 }
@@ -116,14 +112,35 @@ int main()
 				cin >> newVIN;
 				cin.ignore(20, '\n');	//flush the buffer
 
+                carInd = heap1->isFound(vin);
 
-				//heap1->heapIncreaseVIN(heap1->isFound(), )
+                if(carInd < 0) {
+                    cout << "\nThe old VIN you try to increase does not exist\n";
+                }else if(newVIN < vin) {
+                    cout << "\nIncrease VIN error: new vin is smaller than current vin\n";
+                } else {
+                    if(heap1->isDupe(newVIN)) {
+                        cout << "\nThe new VIN you entered already exist, increase VIN operation failed\n";
+                    } else {
+                        Car* newCar = new Car();
+                        newCar->vin = newVIN;
+                        newCar->model = model;
+                        newCar->make = make;
+                        newCar->price = price;
+                        cout << "\nBefore increase VIN operation:\n";
+                        heap1->printHeap();
+                        heap1->heapIncreaseVIN(carInd, *newCar);
+                        cout << "\nCar with old VIN: " << vin << " is increased to new VIN: " << newVIN << "\n";
+                        cout << "\nAfter increase VIN operation: \n";
+                        heap1->printHeap();
+                    }
+                }
 
 				break;
 
 			case 'M':	//get maximum node
                 if(heap1->getSize() == 0) {
-                    cout << "Empty heap, can NOT get max node";
+                    cout << "Empty heap, can NOT get max node\n";
                     break;
                 }
                 maxCar = heap1->getCarArr()[0];
@@ -145,6 +162,7 @@ int main()
 			case 'S':	//HeapSort
 				cout << "\nHeap sort. Cars will be sorted in increasing order of their VINs" << endl;
                 heapSort(heap1);
+                heap1->setSize(0);
 
 				break;
 
@@ -171,11 +189,24 @@ void heapSort(MaxHeap* oneMaxHeap)
 {
     int size = oneMaxHeap->getSize();
     Car* carArr = oneMaxHeap->getCarArr();
-    for(int i = size - 1; i > 1; i--) {
+    for(int i = size - 1; i > 0; i--) {
         Car temp = carArr[i];
         carArr[i] = carArr[0];
         carArr[0] = temp;
-        oneMaxHeap->heapify(0);
+
+        int j = 0;
+        int index;
+
+        do {
+            index = (2 * j + 1);
+            if (carArr[index].vin < carArr[index + 1].vin && index < (i - 1)) {
+                index++;
+            }
+            if (carArr[j].vin < carArr[index].vin && index < i) {
+                swap(carArr[j], carArr[index]);
+            }
+            j = index;
+        } while (index < i);
     }
     for(int i = 0; i < size; i++) {
         cout << left;
