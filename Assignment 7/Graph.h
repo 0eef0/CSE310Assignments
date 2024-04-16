@@ -45,8 +45,7 @@ Graph::Graph(int numOfNode, MinPriorityQueue* departureHeap)
 //Destructor Graph::~Graph()
 Graph::~Graph()
 {
-    //----
-    //----
+
 }
 
 //*******************************************************************
@@ -75,11 +74,11 @@ void Graph::printDijkstraPath(std::string sourceDepAddress) {
          << setw(20) << "Shortest Time(h)"
          << "Shortest Path" << endl;
 
+    Departure* arr = departureHeap->getDepartureArr();
+
     dijkstra(sourceDepAddress);
 
-    Departure* arr = departureHeap->getDepartureArr();
     for(int i = numOfNode - 1; i >= 0; i--) {
-
         if(arr[i].d < 10000) {
             cout << left;
             cout << setw(14) << arr[i].depAddress
