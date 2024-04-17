@@ -65,10 +65,16 @@ void MinPriorityQueue::printHeap()
          << "Arrival List" << endl;
 
     for(int i = 0; i < size; i++) {
+        string nodeParent;
+        if(departureArr[i].pi == nullptr) {
+            nodeParent = "No Parent";
+        } else {
+            nodeParent = departureArr[i].pi->depAddress;
+        }
         cout << left;
         cout << setw(15) << departureArr[i].depAddress
              << setw(12) << fixed << setprecision(2) << departureArr[i].d
-             << setw(15) << ((departureArr[i].pi == nullptr) ? "No Parent" : departureArr[i].pi->depAddress);
+             << setw(15) << nodeParent;
         departureArr[i].arrList->printArrivalList();
         cout << endl;
     }
@@ -92,6 +98,8 @@ bool MinPriorityQueue::insert(Departure oneDeparture)
     departureArr[size] = oneDeparture;
     size++;
     decreaseKey(size - 1, oneDeparture);
+
+    return true;
 }
 
 //****************************************************************************
@@ -135,20 +143,22 @@ int MinPriorityQueue::isFound(std::string oneDepAddress) {
 }
 
 bool MinPriorityQueue::decreaseKey(int index, Departure oneDepartureWithNewDValue) {
-    if(departureArr[index].d < oneDepartureWithNewDValue.d) {
+    if (departureArr[index].d < oneDepartureWithNewDValue.d) {
         return false;
     } else {
         departureArr[index].d = oneDepartureWithNewDValue.d;
         departureArr[index].pi = oneDepartureWithNewDValue.pi;
-        while(index > 0 && departureArr[parent(index)].d > departureArr[index].d) {
-            //swap(departureArr[index], departureArr[parent(index)]);
+        while (index > 0 && departureArr[parent(index)].d > departureArr[index].d) {
+            // Swap the elements and update the index
             Departure temp = departureArr[index];
             departureArr[index] = departureArr[parent(index)];
             departureArr[parent(index)] = temp;
+            index = parent(index); // Update the index
         }
         return true;
     }
 }
+
 
 int MinPriorityQueue::leftChild(int parentIndex) {
     return parentIndex * 2 + 1;

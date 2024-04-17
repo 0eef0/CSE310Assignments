@@ -32,6 +32,7 @@ int main()
     for(int i = 0; i < count; i++)
     {
         departureArr[i].d = 10000.0 + i;  //***this is to make sure each node has different d value
+        departureArr[i].pi = nullptr;
         departureArr[i].arrList = new ArrivalList();
     }
 
@@ -67,7 +68,7 @@ int main()
         }
         graph = new Graph(count, queue);
 
-        cout << "\nEnter departure address: \n";
+        cout << setfill(' ') << setw(25) << "\nEnter departure address:\u0020 \n";
         getline(cin, oneLine);
         int index = queue->isFound(oneLine);
         if(index > -1) {
@@ -93,11 +94,11 @@ int main()
 //********************************************************************************
 //Give one line in input file, this function extract tokens and get departure address
 //and all arrival info.
+
 void getDepartureInfo(string oneLine, string& depAddress, ArrivalList* arrList)
 {
     depAddress = oneLine.substr(0,1);
     oneLine.erase(0, 2);
-    //cout << '\n' << depAddress;
 
     while(oneLine.find('/') != string::npos) {
         string rest = oneLine.substr(0, oneLine.find(','));
@@ -108,7 +109,7 @@ void getDepartureInfo(string oneLine, string& depAddress, ArrivalList* arrList)
         arrList->addArrival(strAddress, distance, roadCategory);
         oneLine.erase(0, oneLine.find(',') + 1);
     }
-
+    cout << "\n";
 }
 
 //******************************************************************************************

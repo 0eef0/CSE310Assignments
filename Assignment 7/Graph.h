@@ -27,7 +27,6 @@ public:
     int findOneDeparture(string aDepAddress);
     void dijkstra(string sourceDepAddress);
     void printDijkstraPath(string sourceDepAddress); // 679
-    string createShortestPath(Departure u);
 
     //add any auxiliary functions here in case you need them
     //----
@@ -68,6 +67,7 @@ void Graph::initialize_single_source(std::string sourceDepAddress) {
     departureHeap->decreaseKey(index, temp);
 }
 
+string PATH;
 void Graph::printDijkstraPath(std::string sourceDepAddress) {
     cout << left;
     cout << setw(14) << "Arrival"
@@ -78,34 +78,56 @@ void Graph::printDijkstraPath(std::string sourceDepAddress) {
 
     dijkstra(sourceDepAddress);
 
+    for(int i = numOfNode - 1; i > 0; i--) {
+        if(arr[i].d == arr[i - 1].d || (arr[i].d >= 10000 && arr[i - 1].d >= 10000)) {
+            swap(arr[i], arr[i - 1]);
+        }
+    }
+
     for(int i = numOfNode - 1; i >= 0; i--) {
-        if(arr[i].d < 10000) {
+        const Departure* curr = &arr[i];
+
+        string path;
+        if(curr->pi == nullptr) {
+            path = curr->depAddress;
+        } else if(PATH.find(curr->depAddress) != string::npos) {
+            path = PATH.substr(0, PATH.length() - 2);
+        } else {
+            path = PATH + curr->depAddress;
+        }
+
+        if(curr->d < 10000) {
             cout << left;
-            cout << setw(14) << arr[i].depAddress
-                 << setw(20) << setprecision(2) << arr[i].d
-                 << createShortestPath(arr[i]) << endl;
+            cout << setw(14) << curr->depAddress
+                 << setw(20) << setprecision(2) << curr->d
+                 << path << endl;
         } else {
             cout << left;
-            cout << setw(14) << arr[i].depAddress
+            cout << setw(14) << curr->depAddress
                  << setw(20) << "None exist"
                  << "None exist" << endl;
         }
     }
 }
+
 void Graph::dijkstra(std::string sourceDepAddress) {
     initialize_single_source(sourceDepAddress);
+    PATH = "";
 
     while(departureHeap->getSize() > 0) {
+        departureHeap->printHeap();
+
         Departure temp = departureHeap->getHeapMin();
         departureHeap->extractHeapMin();
 
         if(temp.arrList->getHead() != nullptr) {
             Arrival *arrList = temp.arrList->getHead();
+            int index = departureHeap->isFound(arrList->arrAddress);
             while (arrList != nullptr) {
-                relax(temp, departureHeap->getDepartureArr()[departureHeap->isFound(arrList->arrAddress)]);
+                relax(temp, departureHeap->getDepartureArr()[index]);
                 arrList = arrList->next;
             }
-            departureHeap->printHeap();
+            //departureHeap->printHeap();
         } else {
             return;
         }
@@ -118,20 +140,9 @@ void Graph::relax(Departure u, Departure v) {
     if(temp->distance / speed + u.d < v.d) {
         v.d = temp->distance / speed + u.d;
         v.pi = &u;
+        if(PATH.find(u.depAddress) == string::npos) PATH = PATH + u.depAddress + "->";
         departureHeap->decreaseKey(departureHeap->isFound(v.depAddress), v);
     }
-}
-string Graph::createShortestPath(Departure u) {
-    if(u.pi == nullptr) return u.depAddress;
-
-//    string path = "";
-//    if(u.pi == nullptr) {
-//        return u.depAddress;
-//    } else {
-//        path += createShortestPath(*u.pi);
-//    }
-    cout << u.pi->depAddress;
-    return "test";
 }
 
 int Graph::findOneDeparture(std::string aDepAddress) {
