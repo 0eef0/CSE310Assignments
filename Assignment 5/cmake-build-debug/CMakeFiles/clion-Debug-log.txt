@@ -1,0 +1,13 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/x64/ninja -G Ninja -S "/Users/EthanRoldan/Documents/ASU/Spring24/CSE310/Assignment 5" -B "/Users/EthanRoldan/Documents/ASU/Spring24/CSE310/Assignment 5/cmake-build-debug"
+-- Configuring done (0.0s)
+CMake Error at CMakeLists.txt:6 (add_executable):
+  Cannot find source file:
+
+    main.cpp
+
+
+CMake Error at CMakeLists.txt:6 (add_executable):
+  No SOURCES given to target: Assignment_5
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.

@@ -1,7 +1,8 @@
 // ASU CSE310 Spring 2024 Assignment #1
 // Name: Ethan Roldan
 // ASU ID: 1223945385
-// Description:
+// Description: This file is the class declaration for the LinkedList
+//              This includes all of the nodes and functions
 
 #include <iostream>
 #include <iomanip>
@@ -40,7 +41,7 @@ public:
 // Constructor to initialize an empty linked list
 LinkedList::LinkedList()
 {
-    head = nullptr;
+    head = nullptr; // initalize an empty head node
 }
 
 // Destructor
@@ -49,9 +50,15 @@ LinkedList::LinkedList()
 // Return value: Prints the number of nodes deleted by it.
 LinkedList::~LinkedList()
 {
-    // add your own code
-    //----
-    int carCount = 0;
+    int carCount = 0; // Car count starts at zero
+
+    // while node is in the head, delete the head and shift the list forward
+    while(head != nullptr) {
+        Car* temp = head;
+        head = head->next;
+        delete temp;
+        carCount++;
+    }
     cout << "The number of deleted Car is: " << carCount << "\n";
 }
 
@@ -59,7 +66,9 @@ LinkedList::~LinkedList()
 // Return true if it exists and false otherwise.
 bool LinkedList::findCar(int aVin)
 {
+    // If the list is empty, return false
     if(head != nullptr) {
+        // Initialize a temp node and iterate until a node with aVin is found
         Car *temp = head;
         while (temp != nullptr) {
             if (temp->vin == aVin) {
@@ -80,49 +89,89 @@ bool LinkedList::findCar(int aVin)
 // Return value: true if it is successfully inserted and false in case of failures.
 bool LinkedList::addCar(string model, string make, int vin, double price)
 {
-    // if the Car already exist, return false
-    if(head == nullptr) {
-        head = (Car*) malloc(sizeof(Car));
-        head->model = model;
-        head->make = make;
-        head->vin = vin;
-        head->price = price;
-        head->next = nullptr;
-        return true;
-    } else {
-        Car* temp = head;
-        while(temp->next != nullptr) {
+    // This checks if the VIN is already registered, if it is, then return false
+    if(head != nullptr) {
+        Car *temp = head;
+        while (temp != nullptr) {
+            if (temp->vin == vin) {
+                return false;
+            }
             temp = temp->next;
         }
+    }
 
-        temp->next = (Car*) malloc(sizeof(Car));
-        temp->next->make = make;
-        temp->next->model = model;
-        temp->next->vin = vin;
-        temp->next->price = price;
-        temp->next->next = nullptr;
+    // Make the new Car
+    Car* newCar = (Car*) malloc(sizeof(Car));
+    newCar->model = model;
+    newCar->make = make;
+    newCar->vin = vin;
+    newCar->price = price;
+    newCar->next  = nullptr;
+
+    // If the head is empty, then the list is empty so make the new car the head
+    if(head == nullptr) {
+        newCar->next = head;
+        head = newCar;
         return true;
     }
-    return false;
+    // If the new car has a make less than the current head, then make it the new head
+    if(make.compare(head->make) < 0) {
+        newCar->next = head;
+        head = newCar;
+        return true;
+    }
+    // If the new car has a make equal to the current head, then check the model
+    if(make.compare(head->make) == 0) {
+        if(model.compare(head->model) < 0) {
+            newCar->next = head;
+            head = newCar;
+            return true;
+        }
+        // If the models are the same then check the VIN
+        if(model.compare(head->model) == 0) {
+            if(vin < head->vin) {
+                newCar->next = head;
+                head = newCar;
+                return true;
+            }
+        }
+    }
+
+    // If the car doesnt go to the head, then organize the new objects by make, then model, then VIN
+    Car* curr = head;
+    while(curr->next != nullptr && make.compare(curr->next->make) > 0) {
+        curr = curr->next;
+    }
+    while (curr->next != nullptr && make.compare(curr->next->make) == 0 && model.compare(curr->next->model) > 0) {
+        curr = curr->next;
+    }
+    while (curr->next != nullptr && model.compare(curr->next->model) == 0 && vin > curr->next->vin) {
+        curr = curr->next;
+    }
+    newCar->next = curr->next;
+    curr->next = newCar;
+    return true;
 }
 
 // Removes the specified Car from the list, releases the memory and updates pointers.
 // Return true if it is successfully removed, false otherwise.
 bool LinkedList::removeByVin(int aVin)
 {
+    // If the list is empty, return false
     if(head == nullptr) {
         return false;
     }
+    // If the head is the desired deletion, then delete it
     if(head->vin == aVin) {
         head = head->next;
         return true;
     } else {
+        // If it is not the head, then iterate through until you find it, then delete it
         Car* prev = head;
         Car* curr = head->next;
         while(curr != nullptr) {
             if(curr->vin == aVin) {
                 prev->next = curr->next;
-                delete curr;
                 return true;
             } else {
                 prev = curr;
@@ -138,46 +187,125 @@ bool LinkedList::removeByVin(int aVin)
 // the same model and make should be removed from the list.
 bool LinkedList::removeByModelAndMake(string model, string make)
 {
+    // If the list is empty, return false
     if(head == nullptr) {
         return false;
     }
+
+    // This variable denotes whether or not an element has been removed
     bool removed = false;
-    if(head->model == model && head->make == make) {
+
+    // If the desired remover is the head, them remove cars until it isnt anymore
+    while(head != nullptr && head->model == model && head->make == make) {
         head = head->next;
         removed = true;
     }
-        Car* prev = head;
-        Car* curr = head->next;
-        while(curr != nullptr) {
-            if(curr->model == model && curr->make == make) {
-                prev->next = curr->next;
-                removed = true;
-                delete curr;
-            } else {
-                prev = curr;
-                curr = curr->next;
-            }
+
+    // if the desired deletion is in the middle, then iterate until theyre all deleted
+    Car* prev = nullptr;
+    Car* curr = head;
+    while(curr != nullptr) {
+        if(curr->model == model && curr->make == make) {
+            removed = true;
+            prev->next = curr->next;
+        } else {
+            prev = curr;
         }
+        curr = curr->next;
+    }
+
+    if(!removed) cout << "No such Car found.\n";
     return removed;
-//    else
-//    {
-//        cout << "No such Car found.\n";
-//        return false;
-//    }
 }
 
 // Modifies the data of the given Car. Return true if it modifies successfully and
 // false otherwise. Note: after changing a Car model and make, the linked list must still
 // maintain the alphabetical order.
-//bool LinkedList::changeCarInfo(int aVin, string newModelAndMake)
-//{
-//    // split newModelAndMake string to get model and make accordingly
-//    // add your own code
-//    //----
-//
-//    // add your own code
-//    //----
-//}
+bool LinkedList::changeCarInfo(int aVin, string newModelAndMake)
+{
+    // split newModelAndMake string to get model and make accordingly
+    bool carFound = false;
+    int space = newModelAndMake.find(" ");
+    string model = newModelAndMake.substr(0, space);
+    string make = newModelAndMake.substr(space + 1);
+    double price;
+
+    if(head == nullptr) {
+        return false;
+    }
+    if(head->vin == aVin) {
+        price = head->price;
+        Car* temp = head;
+        head = head->next;
+        delete temp;
+        carFound = true;
+    } else {
+        Car* prev = head;
+        Car* curr = head->next;
+        while(curr != nullptr) {
+            if(curr->vin == aVin) {
+                price = curr->price;
+                prev->next = curr->next;
+                delete curr;
+                carFound = true;
+                break;
+            } else {
+                prev = curr;
+                curr = curr->next;
+            }
+        }
+    }
+
+    if(carFound) {
+        Car *newCar = new Car();
+        newCar->model = model;
+        newCar->make = make;
+        newCar->vin = aVin;
+        newCar->price = price;
+        newCar->next = nullptr;
+
+        // if the Car already exist, return false
+        if (head == nullptr) {
+            newCar->next = head;
+            head = newCar;
+            return true;
+        }
+        if (make.compare(head->make) < 0) {
+            newCar->next = head;
+            head = newCar;
+            return true;
+        }
+        if (make.compare(head->make) == 0) {
+            if (model.compare(head->model) < 0) {
+                newCar->next = head;
+                head = newCar;
+                return true;
+            }
+            if (model.compare(head->model) == 0) {
+                if (aVin < head->vin) {
+                    newCar->next = head;
+                    head = newCar;
+                    return true;
+                }
+            }
+        }
+
+        Car* i = head;
+        while (i->next != nullptr && make.compare(i->next->make) > 0) {
+            i = i->next;
+        }
+        while (i->next != nullptr && make.compare(i->next->make) == 0 && model.compare(i->next->model) > 0) {
+            i = i->next;
+        }
+        while (i->next != nullptr && model.compare(i->next->model) == 0 && aVin > i->next->vin) {
+            i = i->next;
+        }
+
+        newCar->next = i->next;
+        i->next = newCar;
+    }
+    return carFound;
+}
 
 bool LinkedList::updateCarPrice(int aVin, double newPrice)
 {
@@ -197,9 +325,6 @@ bool LinkedList::updateCarPrice(int aVin, double newPrice)
 // Prints all Cars in the list with the same make.
 void LinkedList::printCarListByMake(string make)
 {
-    // add your own code
-    //----
-
     if(head == nullptr) {
         cout << "The list is empty\n";
     } else {
@@ -224,8 +349,6 @@ void LinkedList::printCarListByMake(string make)
 // Prints all Cars in the linked list starting from the head node.
 void LinkedList::printCarList()
 {
-    // add your own code
-    //----
     if(head == nullptr) {
         cout << "The list is empty\n";
     } else {
