@@ -50,7 +50,7 @@ int main()
 
             cout << "Enter Car Price:\n";
             cin >> price;
-            cin.ignore(20, '\n'); // flush the buffer
+            //cin.ignore(20, '\n'); // flush the buffer
 
             // add your own code
             //----
