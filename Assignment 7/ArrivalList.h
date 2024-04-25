@@ -2,7 +2,7 @@
 // ASU CSE310 Spring 2024 Assignment #7
 // Name of Author: Ethan Roldan
 // ASU ID: 1223945385
-// Description: //---- is where you should add your own code
+// Description: This is the struct for the linked list of arrival objects. Each arrival holds an address, distance, and road category
 //********************************************************************
 
 #include <iostream>
@@ -41,22 +41,26 @@ public:
 //Destructor. Before termination, the destructor is called to free the associated memory occupied by the
 //existing linked list. It deletes all the Arrivals including the head and finally prints the number of
 //Arrival deleted by it.
-//----
-//----
 ArrivalList::~ArrivalList() {
-    //int addressCount = 0;
-    //cout<< "The number of deleted arrival addresses are: " << addressCount <<"\n";
+    Arrival* temp = head;
+    while(temp != nullptr) {
+        Arrival* next = temp->next;
+        delete head;
+        temp = next;
+    }
 }
 
-//According to above class definition, define all functions accordingly
+// Initialize empty arrival list
 ArrivalList::ArrivalList() {
     head = nullptr;
 }
 
+// Getter function for the head
 Arrival* ArrivalList::getHead() {
     return head;
 }
 
+// iterate throught the linked list to find a specified arrival given an address, returns nullptr if not found
 Arrival* ArrivalList::findArrival(std::string oneAddress) {
     Arrival* temp = head;
     while(temp != nullptr) {
@@ -69,6 +73,7 @@ Arrival* ArrivalList::findArrival(std::string oneAddress) {
     return temp;
 }
 
+// insert a new arrival object given an address, distance, and road category
 bool ArrivalList::addArrival(std::string oneAddress, double distance, std::string roadCategory) {
     Arrival* newArrival = new Arrival();
     newArrival->arrAddress = oneAddress;
@@ -108,5 +113,4 @@ void ArrivalList::printArrivalList()
             temp = temp->next;
         }
     }
-    //cout <<"\n";
 }

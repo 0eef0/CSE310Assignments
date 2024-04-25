@@ -2,17 +2,13 @@
 // ASU CSE310 Spring 2024 Assignment #7
 // Name: Ethan Roldan
 // ASU ID: 1223945385
-// Description: //---- is where you should add your own code
+// Description: This is the driver file that prompts users for a graph and then several vertices. Then it will run dijkstra on said vertices.
 //********************************************************************
-
-//include necessary header file here
-//----
 #include "Graph.h"
 
 using namespace std;
 
 void getDepartureInfo(string oneLine, string& depAddress, ArrivalList* arrList);
-void getArrivalInfo(string oneArrivalInfo, string& arrAddress, double& distance, string& roadCategory); //**optional
 
 int main()
 {
@@ -44,7 +40,6 @@ int main()
     }
 
     //create a Graph object
-    //----
     MinPriorityQueue* queue = new MinPriorityQueue(count);
     for(int i = 0; i < count; i++) {
         queue->insert(departureArr[i]);
@@ -62,13 +57,16 @@ int main()
     //shortest traveling time and path, then ask the user whether he want to continue or not...
 
     while(answer.compare("yes") == 0) {
+
+        // initialize a new queue and graph for specific source vertice
         queue = new MinPriorityQueue(count);
         for(int i = 0; i < count; i++) {
             queue->insert(departureArr[i]);
         }
         graph = new Graph(count, queue);
 
-        cout << setfill(' ') << setw(25) << "\nEnter departure address:\u0020 \n";
+        // Prompt user with a source address and run dijkstra algorithm on it
+        cout << setfill(' ') << setw(25) << "\nEnter departure address: \n";
         getline(cin, oneLine);
         int index = queue->isFound(oneLine);
         if(index > -1) {
@@ -79,16 +77,17 @@ int main()
             cout << oneLine << " does NOT exist";
         }
 
+        // Prompt user whether or not they would like to run dijkstra on another vertice
         cout << "\n\nFind shortest path for another departure address(yes or no): \n";
         getline(cin, answer);
 
+        // delete the graph and queue
         delete graph;
         delete queue;
 
     }
 
     cout << "Program terminate";
-
 }
 
 //********************************************************************************
@@ -110,13 +109,4 @@ void getDepartureInfo(string oneLine, string& depAddress, ArrivalList* arrList)
         oneLine.erase(0, oneLine.find(',') + 1);
     }
     cout << "\n";
-}
-
-//******************************************************************************************
-//Given such as Y(1803.2/I), this function extracts arrival Address "Y", distance 1803.2
-//and roadCategory "I" info. out
-void getArrivalInfo(string oneArrivalInfo, string& arrAddress, double& distance, string& roadCategory)
-{
-    //----
-    //----
 }

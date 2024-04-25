@@ -1,0 +1,94 @@
+/*    PATH = "";
+
+    while(departureHeap->getSize() > 0) {
+        Departure temp = departureHeap->getHeapMin();
+        departureHeap->extractHeapMin();
+
+        if(temp.arrList->getHead() != nullptr) {
+            Arrival *arrList = temp.arrList->getHead();
+            while (arrList != nullptr) {
+                int index = -1;
+                Departure* depList = departureHeap->getDepartureArr();
+                for(int i = 0; i < numOfNode; i++) {
+                    if(depList[i].depAddress.compare(arrList->arrAddress) == 0) {
+                        index = i;
+                        break;
+                    }
+                }
+                if(index == -1) return;
+                relax(temp, depList[index], depList[0]);
+                arrList = arrList->next;
+            }
+        } else {
+            return;
+        }
+    }*/
+
+     /*   Departure* arr = departureHeap->getDepartureArr();
+
+        dijkstra(sourceDepAddress);
+
+        for(int i = numOfNode - 1; i > 0; i--) {
+            if(arr[i].d == arr[i - 1].d || (arr[i].d >= 10000 && arr[i - 1].d >= 10000)) {
+                swap(arr[i], arr[i - 1]);
+            }
+        }
+
+        for(int i = numOfNode - 1; i >= 0; i--) {
+            const Departure* curr = &arr[i];
+
+            string path;
+            if(curr->pi == nullptr) {
+                path = curr->depAddress;
+            } else if(PATH.find(curr->depAddress) != string::npos) {
+                path = PATH.substr(0, PATH.find(curr->depAddress) + 1);
+            } else {
+                path = PATH + curr->depAddress;
+            }
+
+            string finalPath;
+            for(int j = 0; j < path.length() - 1; j++) {
+                Departure d1;
+                Departure d2;
+
+                for(int k = 0; k < numOfNode; k++) {
+                    if(arr[k].depAddress == string(1,path[j])) {
+                        d1 = arr[k];
+                    }
+                    if(arr[k].depAddress == string(1, path[j + 1])) {
+                        d2 = arr[k];
+                    }
+                }
+
+                if (j == 0 || (d1.arrList->findArrival(d2.depAddress) != nullptr)) {
+                    finalPath += string(1, path[j]) + "->";
+                }
+            }
+            finalPath += curr->depAddress;
+
+            if(curr->d < 10000) {
+                cout << left;
+                cout << setw(14) << curr->depAddress
+                     << setw(20) << setprecision(2) << curr->d
+                     << ((i == numOfNode - 1) ? sourceDepAddress : finalPath) << endl;
+            } else {
+                cout << left;
+                cout << setw(14) << curr->depAddress
+                     << setw(20) << "None exist"
+                     << "None exist" << endl;
+            }
+        }*/
+
+
+        //    Arrival* temp = u.arrList->findArrival(v.depAddress);
+        //    string roadType = temp->roadCategory;
+        //    int speed = (roadType.compare("I") == 0) ? 65 : (roadType.compare("A") == 0) ? 55 : (roadType.compare("C") == 0) ? 45 : 25;
+        //    if(temp->distance / speed + u.d < v.d) {
+        //        v.d = temp->distance / speed + u.d;
+        //        v.pi = &uPtr;
+        //
+        //        if(PATH.find(u.depAddress) == string::npos) {
+        //            PATH = PATH + u.depAddress;
+        //        }
+        //        departureHeap->decreaseKey(departureHeap->isFound(v.depAddress), v);
+        //    }

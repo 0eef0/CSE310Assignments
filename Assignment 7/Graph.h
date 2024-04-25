@@ -4,9 +4,6 @@
 // ASU ID: 1223945385
 // Description: This is the header file that defines a weighted directed graph
 //********************************************************************
-
-//include necessary header file here
-//----
 #include "MinPriorityQueue.h"
 
 using namespace std;
@@ -27,9 +24,6 @@ public:
     int findOneDeparture(string aDepAddress);
     void dijkstra(string sourceDepAddress);
     void printDijkstraPath(string sourceDepAddress); // 679
-
-    //add any auxiliary functions here in case you need them
-    //----
 };
 
 //*******************************************************************
@@ -60,6 +54,8 @@ MinPriorityQueue* Graph::getDepartureHeap() {
 }
 
 //According to above class definition, define all other functions accordingly
+
+// iterates through the heap and sets the given departure object address to zero
 void Graph::initialize_single_source(std::string sourceDepAddress) {
     int index = departureHeap->isFound(sourceDepAddress);
     Departure temp = departureHeap->getDepartureArr()[index];
@@ -67,81 +63,99 @@ void Graph::initialize_single_source(std::string sourceDepAddress) {
     departureHeap->decreaseKey(index, temp);
 }
 
-string PATH;
+// this is the function that puts everything together and prints out the result
 void Graph::printDijkstraPath(std::string sourceDepAddress) {
+    // run dijkstra algorithm
+    dijkstra(sourceDepAddress);
+
+    // print header
     cout << left;
     cout << setw(14) << "Arrival"
          << setw(20) << "Shortest Time(h)"
          << "Shortest Path" << endl;
 
-    Departure* arr = departureHeap->getDepartureArr();
+    // prepares an array to print out the results
+    Departure* depList = departureHeap->getDepartureArr();
+    Departure* sortDepList = new Departure[departureHeap->getSize()];
+    for(int i = 0; i < departureHeap->getSize(); i++) sortDepList[i] = depList[i];
 
-    dijkstra(sourceDepAddress);
-
-    for(int i = numOfNode - 1; i > 0; i--) {
-        if(arr[i].d == arr[i - 1].d || (arr[i].d >= 10000 && arr[i - 1].d >= 10000)) {
-            swap(arr[i], arr[i - 1]);
+    for (int i = 0; i < departureHeap->getSize() - 1; ++i) {
+        for (int j = 0; j < departureHeap->getSize() - i - 1; ++j) {
+            if (sortDepList[j].d > sortDepList[j + 1].d) {
+                swap(sortDepList[j], sortDepList[j + 1]);
+            }
         }
     }
 
-    for(int i = numOfNode - 1; i >= 0; i--) {
-        const Departure* curr = &arr[i];
+    // prints out the dijkstra results
+    for(int i = 0; i < departureHeap->getSize(); i++) {
+        if(sortDepList[i].d < 10000) {
+            string path = "";
+            Departure* curr = &sortDepList[i];
+            while(curr != nullptr) {
+                path = "->" + curr->depAddress + path;
+                curr = curr->pi;
+            }
+            path.erase(0, 2);
 
-        string path;
-        if(curr->pi == nullptr) {
-            path = curr->depAddress;
-        } else if(PATH.find(curr->depAddress) != string::npos) {
-            path = PATH.substr(0, PATH.length() - 2);
-        } else {
-            path = PATH + curr->depAddress;
-        }
-
-        if(curr->d < 10000) {
             cout << left;
-            cout << setw(14) << curr->depAddress
-                 << setw(20) << setprecision(2) << curr->d
+            cout << setw(14) << sortDepList[i].depAddress
+                 << setw(20) << setprecision(2) << sortDepList[i].d
                  << path << endl;
         } else {
             cout << left;
-            cout << setw(14) << curr->depAddress
+            cout << setw(14) << sortDepList[i].depAddress
                  << setw(20) << "None exist"
                  << "None exist" << endl;
         }
     }
 }
 
+// dijkstra algorithm
 void Graph::dijkstra(std::string sourceDepAddress) {
+    // set given departure object to zero
     initialize_single_source(sourceDepAddress);
-    PATH = "";
 
-    while(departureHeap->getSize() > 0) {
-        departureHeap->printHeap();
+    // create a list of departures and a new priority queue
+    Departure* depList = departureHeap->getDepartureArr();
+    MinPriorityQueue* q = new MinPriorityQueue(numOfNode);
 
-        Departure temp = departureHeap->getHeapMin();
-        departureHeap->extractHeapMin();
+    // populate the new queue q
+    for(int i = 0; i < numOfNode; i++) q->insert(depList[i]);
+    q->build_min_heap();
 
-        if(temp.arrList->getHead() != nullptr) {
-            Arrival *arrList = temp.arrList->getHead();
-            int index = departureHeap->isFound(arrList->arrAddress);
-            while (arrList != nullptr) {
-                relax(temp, departureHeap->getDepartureArr()[index]);
-                arrList = arrList->next;
+    // dijkstra algorithm
+    while(q->getSize() > 0) {
+        Departure u = q->getHeapMin();
+        q->extractHeapMin();
+
+        ArrivalList* adj = u.arrList;
+        Arrival* curr = adj->getHead();
+        while(curr != nullptr) {
+            if(departureHeap->isFound(curr->arrAddress) != -1) {
+                Departure &v = depList[departureHeap->isFound(curr->arrAddress)];
+                relax(u, v);
+
+                if(q->isFound(v.depAddress) > -1 && v.d < q->getDepartureArr()[q->isFound(v.depAddress)].d) q->decreaseKey(q->isFound(v.depAddress), v);
             }
-            //departureHeap->printHeap();
-        } else {
-            return;
+            curr = curr->next;
         }
     }
+    delete q;
 }
+
+// given two departure objects, change the distance from u to v if shorter path found
 void Graph::relax(Departure u, Departure v) {
-    Arrival* temp = u.arrList->findArrival(v.depAddress);
-    string roadType = temp->roadCategory;
+    Departure* depList = departureHeap->getDepartureArr();
+    Arrival* uA = u.arrList->findArrival(v.depAddress);
+    string roadType = uA->roadCategory;
     int speed = (roadType.compare("I") == 0) ? 65 : (roadType.compare("A") == 0) ? 55 : (roadType.compare("C") == 0) ? 45 : 25;
-    if(temp->distance / speed + u.d < v.d) {
-        v.d = temp->distance / speed + u.d;
-        v.pi = &u;
-        if(PATH.find(u.depAddress) == string::npos) PATH = PATH + u.depAddress + "->";
-        departureHeap->decreaseKey(departureHeap->isFound(v.depAddress), v);
+    int uI = findOneDeparture(u.depAddress);
+    int vI = findOneDeparture(v.depAddress);
+
+    if(uA->distance / speed + depList[uI].d < depList[vI].d) {
+        depList[vI].d = uA->distance / speed + depList[uI].d;
+        depList[vI].pi = & depList[uI];
     }
 }
 

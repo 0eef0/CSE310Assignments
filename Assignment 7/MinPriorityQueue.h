@@ -2,11 +2,8 @@
 // ASU CSE310 Spring 2024 Assignment #7
 // Name of Author: Ethan Roldan
 // ASU ID: 1223945385
-// Description: //---- is where you should add your own code
+// Description: This is the min priority queue that the dijkstra algorithm uses
 //********************************************************************
-
-//include necessary header file here
-//----
 #include "ArrivalList.h"
 
 using namespace std;
@@ -46,24 +43,19 @@ public:
     int parent(int childIndex); //
     void printHeap(); //
     void build_min_heap();
-
-    //add other function definitions here if 100% necessary
-    //----
 };
 
 
 //*********************************************************
+// Print the heap
 void MinPriorityQueue::printHeap()
 {
-
     cout << "\nHeap size = " << getSize() << "\n" << endl;
-
     cout << left;
     cout << setw(15) << "Departure"
          << setw(12) << "d Value"
          << setw(15) << "PI"
          << "Arrival List" << endl;
-
     for(int i = 0; i < size; i++) {
         string nodeParent;
         if(departureArr[i].pi == nullptr) {
@@ -104,10 +96,12 @@ bool MinPriorityQueue::insert(Departure oneDeparture)
 
 //****************************************************************************
 //Given the original departureArr, the function build a min-heap by using d value
-//void MinPriorityQueue::build_min_heap();
-//{
-//
-//}
+void MinPriorityQueue::build_min_heap()
+{
+    for(int i = ((size / 2) - 1); i >= 0; i--) {
+        heapify(i);
+    }
+}
 
 //According to above class definition, define all other functions accordingly
 MinPriorityQueue::MinPriorityQueue(int capacity) {
@@ -116,11 +110,12 @@ MinPriorityQueue::MinPriorityQueue(int capacity) {
     size = 0;
 }
 
+// destructor
 MinPriorityQueue::~MinPriorityQueue() {
     delete[] departureArr;
-   // cout << "Deleted " << size << " departures";
 }
 
+// getter functions for size, capacity, and departureArr
 int MinPriorityQueue::getSize() {
     return size;
 }
@@ -131,6 +126,7 @@ Departure* MinPriorityQueue::getDepartureArr() {
     return departureArr;
 }
 
+// iterates trhought departureArr and returns index of departure object given an address, returns -1 if not found
 int MinPriorityQueue::isFound(std::string oneDepAddress) {
     int index = -1;
     for(int i = 0; i < size; i++) {
@@ -142,6 +138,7 @@ int MinPriorityQueue::isFound(std::string oneDepAddress) {
     return index;
 }
 
+// decreases key of a departure given an index and a new object
 bool MinPriorityQueue::decreaseKey(int index, Departure oneDepartureWithNewDValue) {
     if (departureArr[index].d < oneDepartureWithNewDValue.d) {
         return false;
@@ -159,19 +156,18 @@ bool MinPriorityQueue::decreaseKey(int index, Departure oneDepartureWithNewDValu
     }
 }
 
-
+// family accessors
 int MinPriorityQueue::leftChild(int parentIndex) {
     return parentIndex * 2 + 1;
 }
-
 int MinPriorityQueue::rightChild(int parentIndex) {
     return parentIndex * 2 + 2;
 }
-
 int MinPriorityQueue::parent(int childIndex) {
     return (childIndex - 1) / 2;
 }
 
+// functions that return the heap min and extract the heap min respectively
 Departure MinPriorityQueue::getHeapMin() {
     return departureArr[0];
 }
@@ -187,6 +183,7 @@ void MinPriorityQueue::extractHeapMin() {
     heapify(0);
 }
 
+// heapify function
 void MinPriorityQueue::heapify(int index) {
     int left = leftChild(index);
     int right = rightChild(index);
